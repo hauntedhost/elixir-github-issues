@@ -18,8 +18,29 @@ defmodule Issues.CLI do
     System.halt(0)
   end
 
-  def process({user, project, _count}) do
+  def process({user, project, count}) do
     Issues.GithubIssues.fetch(user, project)
+    |> handle_response
+    |> reshape_response
+    |> sort_ascending
+    |> Enum.take(count)
+  end
+
+  def handle_response({:ok, raw_list}), do: raw_list
+
+  def handle_response({:error, error}) do
+    {_, message} = List.keyfind(error, "message", 0)
+    IO.puts "Error fetching from Github: #{message}"
+    System.halt(2)
+  end
+
+  def reshape_response(raw_list) do
+    raw_list
+    |> Enum.map(&Enum.into(&1, Map.new))
+  end
+
+  def sort_ascending(issues) do
+    Enum.sort issues, &(&1.created_at <= &2.created_at)
   end
 
   def parse_args(argv) do
@@ -40,5 +61,4 @@ defmodule Issues.CLI do
         :help
     end
   end
-
 end
