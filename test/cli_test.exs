@@ -17,13 +17,13 @@ defmodule CliTest do
   end
 
   test "sort ascending orders correctly" do
-    fake_issues = ~w[c a b] |> Enum.map &(fake_issue(%{ created_at: &1}))
+    fake_issues = ~w[c a b] |> Enum.map &(fake_issue(%{ "created_at" => &1}))
     sorted_issues = sort_ascending(fake_issues)
-    assert (sorted_issues |> Enum.map &(&1.created_at)) == ~w[a b c]
+    assert (sorted_issues |> Enum.map &(&1["created_at"])) == ~w[a b c]
   end
 
   defp fake_issue(issue) do
-    default = %{ title: "Example" }
-    Map.merge(issue, default)
+    default = %{"title" => "Example"}
+    Map.merge(default, issue)
   end
 end

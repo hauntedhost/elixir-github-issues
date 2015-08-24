@@ -1,11 +1,13 @@
 defmodule Issues.CLI do
+  import Issues.TableFormatter, only: [print_table: 2]
+
   @default_count 4
 
   @moduledoc """
   Handle the command line parsing and function dispatch
   """
 
-  def run(argv) do
+  def main(argv) do
     argv
       |> parse_args
       |> process
@@ -24,6 +26,7 @@ defmodule Issues.CLI do
     |> reshape_response
     |> sort_ascending
     |> Enum.take(count)
+    |> print_table(["number", "created_at", "title"])
   end
 
   def handle_response({:ok, raw_list}), do: raw_list
@@ -40,7 +43,7 @@ defmodule Issues.CLI do
   end
 
   def sort_ascending(issues) do
-    Enum.sort issues, &(&1.created_at <= &2.created_at)
+    Enum.sort issues, &(&1["created_at"] <= &2["created_at"])
   end
 
   def parse_args(argv) do
